@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?><process version="7.2.003">
+  <context>
+    <input/>
+    <output/>
+    <macros/>
+  </context>
+  <operator activated="true" class="process" compatibility="7.2.003" expanded="true" name="Process">
+    <parameter key="logverbosity" value="init"/>
+    <parameter key="random_seed" value="2001"/>
+    <parameter key="send_mail" value="never"/>
+    <parameter key="notification_email" value=""/>
+    <parameter key="process_duration_for_mail" value="30"/>
+    <parameter key="encoding" value="SYSTEM"/>
+    <process expanded="true">
+      <operator activated="true" class="text:read_document" compatibility="7.2.001" expanded="true" height="68" name="Read Document" width="90" x="112" y="289">
+        <parameter key="file" value="/Users/mauropelucchi/Desktop/test.txt"/>
+        <parameter key="extract_text_only" value="true"/>
+        <parameter key="use_file_extension_as_type" value="true"/>
+        <parameter key="content_type" value="txt"/>
+        <parameter key="encoding" value="SYSTEM"/>
+      </operator>
+      <operator activated="true" class="text:process_documents" compatibility="7.2.001" expanded="true" height="103" name="Process Documents" width="90" x="246" y="136">
+        <parameter key="create_word_vector" value="true"/>
+        <parameter key="vector_creation" value="TF-IDF"/>
+        <parameter key="add_meta_information" value="true"/>
+        <parameter key="keep_text" value="false"/>
+        <parameter key="prune_method" value="none"/>
+        <parameter key="prune_below_percent" value="3.0"/>
+        <parameter key="prune_above_percent" value="30.0"/>
+        <parameter key="prune_below_rank" value="0.05"/>
+        <parameter key="prune_above_rank" value="0.95"/>
+        <parameter key="datamanagement" value="double_sparse_array"/>
+        <process expanded="true">
+          <operator activated="true" class="web:extract_html_text_content" compatibility="7.2.001" expanded="true" height="68" name="Extract Content" width="90" x="45" y="238">
+            <parameter key="extract_content" value="true"/>
+            <parameter key="minimum_text_block_length" value="3"/>
+            <parameter key="override_content_type_information" value="true"/>
+            <parameter key="neglegt_span_tags" value="true"/>
+            <parameter key="neglect_p_tags" value="true"/>
+            <parameter key="neglect_b_tags" value="true"/>
+            <parameter key="neglect_i_tags" value="true"/>
+            <parameter key="neglect_br_tags" value="true"/>
+            <parameter key="ignore_non_html_tags" value="true"/>
+          </operator>
+          <operator activated="true" class="text:transform_cases" compatibility="7.2.001" expanded="true" height="68" name="Transform Cases" width="90" x="179" y="238">
+            <parameter key="transform_to" value="lower case"/>
+          </operator>
+          <operator activated="true" class="text:tokenize" compatibility="7.2.001" expanded="true" height="68" name="Tokenize (2)" width="90" x="313" y="238">
+            <parameter key="mode" value="non letters"/>
+            <parameter key="characters" value=".:"/>
+            <parameter key="language" value="English"/>
+            <parameter key="max_token_length" value="3"/>
+          </operator>
+          <operator activated="true" class="open_file" compatibility="7.2.003" expanded="true" height="68" name="Open File" width="90" x="380" y="378">
+            <parameter key="resource_type" value="file"/>
+            <parameter key="filename" value="/Users/mauropelucchi/Desktop/Work/University/Master_BI_2016/RAPID_MINER/stopwords_ita_last_modified.csv"/>
+          </operator>
+          <operator activated="true" class="text:filter_stopwords_dictionary" compatibility="7.2.001" expanded="true" height="82" name="Filter Stopwords (Dictionary)" width="90" x="514" y="289">
+            <parameter key="case_sensitive" value="false"/>
+            <parameter key="encoding" value="SYSTEM"/>
+          </operator>
+          <operator activated="true" class="text:filter_by_length" compatibility="7.2.001" expanded="true" height="68" name="Filter Tokens (2)" width="90" x="715" y="238">
+            <parameter key="min_chars" value="2"/>
+            <parameter key="max_chars" value="25"/>
+          </operator>
+          <connect from_port="document" to_op="Extract Content" to_port="document"/>
+          <connect from_op="Extract Content" from_port="document" to_op="Transform Cases" to_port="document"/>
+          <connect from_op="Transform Cases" from_port="document" to_op="Tokenize (2)" to_port="document"/>
+          <connect from_op="Tokenize (2)" from_port="document" to_op="Filter Stopwords (Dictionary)" to_port="document"/>
+          <connect from_op="Open File" from_port="file" to_op="Filter Stopwords (Dictionary)" to_port="file"/>
+          <connect from_op="Filter Stopwords (Dictionary)" from_port="document" to_op="Filter Tokens (2)" to_port="document"/>
+          <connect from_op="Filter Tokens (2)" from_port="document" to_port="document 1"/>
+          <portSpacing port="source_document" spacing="0"/>
+          <portSpacing port="sink_document 1" spacing="0"/>
+          <portSpacing port="sink_document 2" spacing="0"/>
+        </process>
+      </operator>
+      <connect from_op="Read Document" from_port="output" to_op="Process Documents" to_port="documents 1"/>
+      <connect from_op="Process Documents" from_port="word list" to_port="result 1"/>
+      <portSpacing port="source_input 1" spacing="0"/>
+      <portSpacing port="sink_result 1" spacing="0"/>
+      <portSpacing port="sink_result 2" spacing="0"/>
+    </process>
+  </operator>
+</process>
